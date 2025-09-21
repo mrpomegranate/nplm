@@ -1,0 +1,9 @@
+{
+  "vocab_size": 20000,
+  "emb_dim": 128,
+  "context_size": 4,
+  "hid_dim": 256,
+  "test_nll": 9.638550326628755,
+  "test_ppl": 15345.082242897512,
+  "valid_nll": 5.539546550798059
+}
