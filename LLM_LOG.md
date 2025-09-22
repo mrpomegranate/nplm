@@ -1,4 +1,5 @@
 **LLM Model**
+
 For my LLM of choice, I have used ChatGPT 5/4o and Qwen3 max. I have graciously used the LLMs to help me write the code for this project.
 
 The first thing I did is I uploaded the original paper in chatGPT and went through section by section to understand the problem. One of my weakness is converting paper algorithms to code. I have fully capitalized chatgpt to act as a teacher and demonstrate how to convert algorithms from paper to code. Some of the example prompts I used are
