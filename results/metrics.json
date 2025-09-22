@@ -1,12 +1,12 @@
 {
   "vocab_size": 26432,
-  "emb_dim": 128,
+  "emb_dim": 64,
   "context_size": 4,
-  "hid_dim": 256,
-  "test_nll": 6.38,
-  "test_ppl": 588.33,
-  "best_valid_ppl": 589.51,
-  "valid_nll": 6.38,
-  "train_time_mins": 7,
-  "epochs": 50
+  "hid_dim": 128,
+  "test_nll": 6.23,
+  "test_ppl": 506.61,
+  "best_valid_ppl": 269.17,
+  "valid_nll": 5.6,
+  "train_time_mins": 4,
+  "epochs": 5
 }

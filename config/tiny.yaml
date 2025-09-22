@@ -9,5 +9,5 @@ training:
   vocab: artifacts/brown_word_vocab.json
 
 model:
-  embedding_dim: 128
-  hidden_dim: 256
+  emb_dim: 64
+  hid_dim: 128
