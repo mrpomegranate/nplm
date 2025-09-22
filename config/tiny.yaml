@@ -1,0 +1,13 @@
+# configs/tiny.yaml
+training:
+  n: 5                 # number of context words (n-gram size)
+  device: cpu           # force gpu so it runs everywhere
+  epochs: 5           # short run for quick testing
+  max_vocab: 20000      # keep vocab small
+  lr: 0.001             # faster learning for tiny setup
+  batch_size: 512       # smaller batch to fit CPU memory
+  vocab: artifacts/brown_word_vocab.json
+
+model:
+  embedding_dim: 128
+  hidden_dim: 256
