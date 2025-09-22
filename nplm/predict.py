@@ -29,7 +29,7 @@ def load_model(model_path: str, vocab_path: str, device: str = "cpu") -> tuple[N
     vocab = Vocabulary.load(vocab_path)
 
     # Load model config from report
-    report_path = Path(model_path).parent / "report.json"
+    report_path = "results\\metrics.json"
     with open(report_path, "r", encoding="utf-8") as f:
         report = json.load(f)
 

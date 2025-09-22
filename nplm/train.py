@@ -2,6 +2,7 @@ from __future__ import annotations
 import argparse
 import json
 import math
+import time
 import os
 import random
 from pathlib import Path
@@ -86,16 +87,16 @@ class Vocabulary:
     """
     A simple word-level vocabulary class.
     """
-    def __init__(self, min_freq: int = 2, max_vocab: int = 20000):
+    def __init__(self, min_freq: int = 2, max_vocab: int = None):
         self.token_to_id: Dict[str, int] = {}
         self.id_to_token: List[str] = []
         self.freqs: Dict[str, int] = {}
-        self.min_freq = min_freq
+        self.min_freq = min_freq # this is used to filter rare words
         self.max_vocab = max_vocab
 
         # Special tokens
         self.pad = "<pad>"
-        self.unk = "<unk>"
+        self.unk = "<unk>" # unknown word
         self.bos = "<bos>"
         self.eos = "<eos>"
         self.specials = [self.pad, self.unk, self.bos, self.eos]
@@ -108,19 +109,21 @@ class Vocabulary:
             jsonl_dir (str): Directory containing .jsonl or .jsonl.gz files.
         """
         p = Path(jsonl_dir)/"data.jsonl"
+
+        # count token frequencies
         with p.open("r", encoding="utf-8") as f:
             for line in f:
                 obj = json.loads(line)
                 text = obj.get("text", "")
                 tokens = word_tokenize(text)
-                for tok in word_tokenize(text):
+                for tok in tokens:
                     self.freqs[tok] = self.freqs.get(tok, 0) + 1
 
+        # sort by frequency and apply min_freq and max_vocab constraints
         sorted_tokens = sorted(
                 [t for t, c in self.freqs.items() if c >= self.min_freq],
                 key=lambda x: -self.freqs[x]
         )
-
         sorted_tokens = sorted_tokens[: self.max_vocab - len(self.specials)]
 
         self.id_to_token = self.specials + sorted_tokens
@@ -319,7 +322,7 @@ def save_training_plot(train_losses: List[float], valid_losses: List[float],
 
 def parse_args() -> argparse.Namespace:
     """Parse command-line arguments."""
-    p = argparse.ArgumentParser()
+    p = argparse.ArgumentParser(description="Train a Neural Probabilistic Language Model (NPLM)")
     p.add_argument("--shard_dir", type=str, default="data/brown_jsonl", help="Where to write/read JSONL shards")
     p.add_argument("--vocab_path", type=str, default="artifacts/brown_word_vocab.json", help="Path to save/load vocab")
     p.add_argument("--min_freq", type=int, default=2, help="Minimum frequency for a token to be included")
@@ -393,6 +396,7 @@ def main() -> None:
     # Training loop
     best_valid_nll = float("inf")
     train_losses, valid_losses = [], []
+    start_time = time.time()
     for epoch in range(1, args.epochs + 1):
         print(f"Epoch {epoch}/{args.epochs}")
         train_nll = train_epoch(model, train_loader, optim, criterion, device)
@@ -401,13 +405,15 @@ def main() -> None:
         print(f" valid NLL: {valid_nll:.4f}, ppl: {perplexity_from_nll(valid_nll):.2f}")
         if valid_nll < best_valid_nll:
             best_valid_nll = valid_nll
+            best_valid_ppl = perplexity_from_nll(best_valid_nll)
             ckpt_path = Path("artifacts") / "best_model.pt"
             ckpt_path.parent.mkdir(parents=True, exist_ok=True)
             torch.save({"model_state": model.state_dict(), "vocab_path": args.vocab_path}, ckpt_path)
             print("Saved best model ->", ckpt_path)
         train_losses.append(train_nll)
         valid_losses.append(valid_nll)
-
+    elapsed = time.time() - start_time
+    print(f"Training completed in {elapsed/60:.2f} minutes.")
     save_training_plot(train_losses, valid_losses, filename="artifacts/training_plot.png")
 
     # Final evaluation
@@ -420,12 +426,16 @@ def main() -> None:
             "emb_dim": args.emb_dim,
             "context_size": context_size,
             "hid_dim": args.hid_dim,
-            "test_nll": test_nll,
-            "test_ppl": test_ppl,
-            "valid_nll": best_valid_nll,}
-    with open("artifacts/report.json", "w", encoding="utf-8") as f:
+            "test_nll": round(test_nll,2),
+            "test_ppl": round(test_ppl,2),
+            "best_valid_ppl": round(best_valid_ppl,2),
+            "valid_nll": round(best_valid_nll,2),
+            "train_time_mins": round(elapsed / 60,),
+            "epochs": args.epochs}
+    Path("results").mkdir(parents=True, exist_ok=True)
+    with open("results/metrics.json", "w", encoding="utf-8") as f:
         json.dump(report, f, indent=2)
-        print("Saved report -> artifacts/report.json")
+        print("Saved report -> artifacts/metrics.json")
 
 if __name__ == "__main__":
     main()
