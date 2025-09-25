@@ -1,5 +1,5 @@
 **Dataset**
-- I used "Brown" text corpus. This was a small enough dataset thatI can use to train and debug fast for my code. This corpus also has a diverse set of textsfrom different genres.
+- I used "Brown" text corpus. This was a small enough dataset that I can use to train and debug fast for my code. This corpus also has a diverse set of texts from different genres.
 
 **Pre-process**
 - I have chunked the corpus into sentence level unit.
