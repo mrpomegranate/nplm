@@ -3,6 +3,8 @@ Bengio et al. introduced the concept of embedding each word in a feature vector 
 
 In order to run this code, follow the steps:
 
+- Create .venv with the pyproject.toml file
+
 - clone the repo 
 ```
 https://github.com/mrpomegranate/nplm.git
